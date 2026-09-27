@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tharpanam Helper — tests</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", sans-serif; margin: 20px; background: #faf6ef; color: #2b2419; }
+  h1 { margin-bottom: 4px; }
+  #summary { font-size: 18px; font-weight: 700; margin: 10px 0 20px; }
+  #summary.pass { color: #166534; }
+  #summary.fail { color: #b91c1c; }
+  .case { padding: 4px 8px; border-radius: 6px; margin: 2px 0; font-family: "SF Mono", Consolas, monospace; font-size: 13px; }
+  .case.ok { color: #166534; }
+  .case.fail { color: #b91c1c; background: #fee2e2; }
+</style>
+</head>
+<body>
+<h1>Tharpanam Helper — engine tests</h1>
+<p>Runs the acceptance scenarios from ANALYSIS.md §12 (T1–T7, T10) plus translit tests, in the browser,
+using the same scripts as the app (loaded in index.html's dependency order).</p>
+<div id="summary">Running…</div>
+<div id="cases"></div>
+
+<script src="data/relations.js"></script>
+<script src="data/gotras.js"></script>
+<script src="data/panchang-names.js"></script>
+<script src="data/occasions.js"></script>
+<script src="data/rules.js"></script>
+<script src="data/sample-profile.js"></script>
+<script src="data/wording-presets.js"></script>
+<script src="data/mantras/core.js"></script>
+<script src="data/procedures/yajur-apasthamba-smartha.js"></script>
+<script src="data/procedures/brahma-yajnam.js"></script>
+<script src="data/procedures/hiranya.js"></script>
+
+<script src="js/translit.js"></script>
+<script src="js/template.js"></script>
+<script src="js/i18n.js"></script>
+<script src="i18n/en.js"></script>
+<script src="i18n/ta.js"></script>
+<script src="js/store.js"></script>
+
+<script src="js/engine/rules.js"></script>
+<script src="js/engine/lineage.js"></script>
+<script src="js/engine/gotra.js"></script>
+<script src="js/engine/sankalpam.js"></script>
+<script src="js/engine/abhivadaye.js"></script>
+<script src="js/engine/tarpana.js"></script>
+<script src="js/engine/procedure.js"></script>
+
+<script src="js/panchang/manual.js"></script>
+<script src="js/panchang/astro.js"></script>
+
+<script>
+(function () {
+  var T = window.Thar;
+  var passed = 0, failed = 0, cases = [];
+
+  function ok(name, cond, detail) {
+    cases.push({ name: name, pass: !!cond, detail: detail });
+    if (cond) passed++; else failed++;
+  }
+  function eq(name, actual, expected) {
+    var cond = JSON.stringify(actual) === JSON.stringify(expected);
+    ok(name, cond, cond ? "" : "expected " + JSON.stringify(expected) + " got " + JSON.stringify(actual));
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function allKnownProfile() {
+    var p = clone(T.data.sampleProfile);
+    ["pggf", "pgggm", "mgggf", "mgggm"].forEach(function (k) {
+      p.people[k].unknownName = false;
+      p.people[k].name = k + "-name";
+    });
+    return p;
+  }
+
+  var samplePanchang = {
+    samvatsara: "Parabhava", ayana: "dakṣiṇāyane", ritu: "śarad", masa: "Purattasi",
+    paksha: "kṛṣṇa", tithi_loc: "caturdaśyāṃ", vasara: "guru", nakshatra: "Hasta", yoga: "Siddhi", karana: "Vishti"
+  };
+
+  // T1
+  (function () {
+    var profile = allKnownProfile();
+    var res = T.engine.buildProcedure(profile, "amavasya", samplePanchang, {});
+    ok("T1: not blocked", res.blocked === false);
+    if (res.blocked) return;
+    var materialsStep = res.steps.filter(function (s) { return s.id === "materials"; })[0];
+    var koorchamItem = materialsStep.content.items.filter(function (i) { return i.key === "materials.koorcham"; })[0];
+    eq("T1: 2 koorchams for amavasya", koorchamItem.count, 2);
+    var pitruTarp = res.steps.filter(function (s) { return s.id === "tarpanam_pitru"; })[0];
+    eq("T1: pitru tarpanam has 6 slots + 2 jnatajnata lines", pitruTarp.content.lines.length, 8);
+    var mataTarp = res.steps.filter(function (s) { return s.id === "tarpanam_matamaha"; })[0];
+    eq("T1: matamaha tarpanam has 6 slots + 2 jnatajnata lines", mataTarp.content.lines.length, 8);
+    eq("T1: exactly 8 poonal changes", res.steps.filter(function (s) { return s.type === "poonal_change"; }).length, 8);
+  })();
+
+  // T2
+  (function () {
+    var profile = allKnownProfile();
+    profile.people.father.alive = true;
+    var res = T.engine.buildProcedure(profile, "amavasya", samplePanchang, {});
+    ok("T2: blocked when father alive", res.blocked === true);
+    ok("T2: block is R1", res.blocked && res.blocks[0].ruleId === "R1");
+    var res2 = T.engine.buildProcedure(profile, "amavasya", samplePanchang, { overrides: { R1: true } });
+    ok("T2: override lifts the block", res2.blocked === false);
+  })();
+
+  // T3
+  (function () {
+    var profile = allKnownProfile();
+    profile.people.mother.alive = true;
+    var lineage = T.engine.resolveLineage(profile);
+    ok("T3: female chain shifted", lineage.pitru.female.shifted === true);
+    eq("T3: slot order after shift", lineage.pitru.female.slots.map(function (s) { return s.key; }), ["pgm", "pggm", "pgggm"]);
+  })();
+
+  // T4
+  (function () {
+    var profile = clone(T.data.sampleProfile);
+    var lineage = T.engine.resolveLineage(profile);
+    var pggf = lineage.pitru.male.slots.filter(function (s) { return s.key === "pggf"; })[0];
+    eq("T4: unknown name renders as tat tat", pggf.name, "tat tat");
+    var res = T.engine.buildProcedure(profile, "amavasya", samplePanchang, {});
+    ok("T4: warning listed for unknown name", res.warnings.some(function (w) { return w.ruleId === "R5"; }));
+  })();
+
+  // T5
+  (function () {
+    var profile = allKnownProfile();
+    profile.people.mother.birthGotra = "";
+    var lineage = T.engine.resolveLineage(profile);
+    eq("T5: matamaha gotra falls back to tat tat", lineage.matamaha.gotra, "tat tat");
+  })();
+
+  // T6
+  (function () {
+    var profile = allKnownProfile();
+    profile.karunya = [
+      { relation: "matula", name: "Krishnan", gotra: null, gender: "M", alive: false, include: true },
+      { relation: "pitr_bhagini", name: "Kalyani", gotra: null, spouseGotra: "Vasishta", gender: "F", alive: false, include: true },
+      { relation: "svasura", name: "Ganapathy", gotra: null, gender: "M", alive: false, include: true }
+    ];
+    profile.kartha.spouseBirthGotra = "Kaundinya";
+    profile.people.mother.birthGotra = "Kashyapa (Naidhruva)";
+    var res = T.engine.buildProcedure(profile, "mahalaya", samplePanchang, {});
+    var materialsStep = res.steps.filter(function (s) { return s.id === "materials"; })[0];
+    var koorchamItem = materialsStep.content.items.filter(function (i) { return i.key === "materials.koorcham"; })[0];
+    eq("T6: 3rd koorcham added", koorchamItem.count, 3);
+    var karunya = T.engine.resolveKarunyaList(profile);
+    var byRel = {};
+    karunya.list.forEach(function (k) { byRel[k.relation] = k; });
+    eq("T6: mama's gotra = mother's birth gotra", byRel.matula.gotra, "Kashyapa (Naidhruva)");
+    eq("T6: athai's gotra = her husband's gotra", byRel.pitr_bhagini.gotra, "Vasishta");
+    eq("T6: father-in-law's gotra = wife's birth gotra", byRel.svasura.gotra, "Kaundinya");
+  })();
+
+  // T7
+  (function () {
+    var profile = allKnownProfile();
+    profile.karunya = [{ relation: "matula", name: "Krishnan", gotra: null, gender: "M", alive: false, include: true }];
+    profile.people.mother.birthGotra = "Kashyapa (Naidhruva)";
+    var res = T.engine.buildProcedure(profile, "mahalaya_amavasya", samplePanchang, {});
+    var sankalpams = res.steps.filter(function (s) { return s.id === "sankalpam_pitru_part"; });
+    eq("T7: sankalpam appears twice (amavasya, then karunya)", sankalpams.map(function (s) { return s.pass; }), ["amavasya", "karunya"]);
+  })();
+
+  // T10
+  (function () {
+    var abh = T.engine.renderAbhivadaye({ gotra: "Srivatsa", sutra: "apastamba", shakha: "taittiriya", sharmaName: "Test", nameSuffix: "śarmā" });
+    eq("T10: 5 rishis", abh.rishiCount, 5);
+    eq("T10: count word is pañca", abh.countWord, "pañca");
+  })();
+
+  // Translit
+  (function () {
+    eq("translit: devanagari namaḥ", T.translit.iastToDevanagari("namaḥ"), "नमः");
+    eq("translit: devanagari conjunct śarmaṇaḥ", T.translit.iastToDevanagari("śarmaṇaḥ"), "शर्मणः");
+    eq("translit: tamil namaḥ", T.translit.iastToTamil("namaḥ"), "நமஃ");
+    eq("translit: tamil superscript kha/ga/gha", [T.translit.iastToTamil("kha"), T.translit.iastToTamil("ga"), T.translit.iastToTamil("gha")], ["க²", "க³", "க⁴"]);
+    eq("translit: simple english śarmaṇaḥ", T.translit.iastToSimple("śarmaṇaḥ"), "sharmanah");
+  })();
+
+  var summary = document.getElementById("summary");
+  summary.textContent = passed + " passed, " + failed + " failed.";
+  summary.className = failed ? "fail" : "pass";
+  var container = document.getElementById("cases");
+  cases.forEach(function (c) {
+    var div = document.createElement("div");
+    div.className = "case " + (c.pass ? "ok" : "fail");
+    div.textContent = (c.pass ? "✓ " : "✗ ") + c.name + (c.detail ? " — " + c.detail : "");
+    container.appendChild(div);
+  });
+})();
+</script>
+</body>
+</html>

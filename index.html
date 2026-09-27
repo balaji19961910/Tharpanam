@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tharpanam Helper</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark" aria-hidden="true">ॐ</span>
+      <span class="brand-title" id="app-title">Tharpanam Helper</span>
+    </div>
+    <div class="topbar-controls">
+      <select id="occasion-chip" class="chip-select" data-i18n-aria="topbar.occasion" aria-label="Occasion"></select>
+      <input type="datetime-local" id="date-chip" class="chip-select" data-i18n-aria="topbar.date" aria-label="Date">
+      <select id="lang-picker" class="chip-select" data-i18n-aria="topbar.lang" aria-label="UI language">
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
+      </select>
+      <select id="script-picker" class="chip-select" data-i18n-aria="topbar.script" aria-label="Mantra script">
+        <option value="iast">IAST</option>
+        <option value="devanagari">Devanagari</option>
+        <option value="tamil" data-i18n="script.tamil">Tamil</option>
+        <option value="simple" data-i18n="script.simple">Simple English</option>
+      </select>
+      <button id="theme-toggle" class="icon-btn" data-i18n-aria="topbar.theme" aria-label="Toggle dark mode">&#9788;</button>
+    </div>
+  </header>
+
+  <nav class="side-nav" id="side-nav" data-i18n-aria="nav.sections" aria-label="Sections">
+    <a href="#profile" data-i18n="nav.profile">Family profile</a>
+    <a href="#occasion" data-i18n="nav.occasion">Occasion &amp; date</a>
+    <a href="#karunya" data-i18n="nav.karunya">Karunya pitrus</a>
+    <a href="#script" data-i18n="nav.script">Generated script</a>
+    <a href="#recital" data-i18n="nav.recital">Recite</a>
+    <a href="#abhivadaye" data-i18n="nav.abhivadaye">Abhivadaye</a>
+    <a href="#print" data-i18n="nav.print">Print / export</a>
+  </nav>
+
+  <main id="main" class="main-area"></main>
+
+  <aside id="live-preview" class="live-preview"></aside>
+
+  <nav class="tab-bar" id="tab-bar" data-i18n-aria="nav.sections" aria-label="Sections">
+    <a href="#profile" data-i18n="tab.setup">Setup</a>
+    <a href="#script" data-i18n="tab.script">Script</a>
+    <a href="#recital" data-i18n="tab.recite">Recite</a>
+    <a href="#print" data-i18n="tab.more">More</a>
+  </nav>
+</div>
+
+<script src="data/relations.js"></script>
+<script src="data/gotras.js"></script>
+<script src="data/panchang-names.js"></script>
+<script src="data/occasions.js"></script>
+<script src="data/rules.js"></script>
+<script src="data/sample-profile.js"></script>
+<script src="data/wording-presets.js"></script>
+<script src="data/mantras/core.js"></script>
+<script src="data/procedures/yajur-apasthamba-smartha.js"></script>
+<script src="data/procedures/brahma-yajnam.js"></script>
+<script src="data/procedures/hiranya.js"></script>
+
+<script src="js/translit.js"></script>
+<script src="js/template.js"></script>
+<script src="js/i18n.js"></script>
+<script src="i18n/en.js"></script>
+<script src="i18n/ta.js"></script>
+<script src="js/store.js"></script>
+
+<script src="js/engine/rules.js"></script>
+<script src="js/engine/lineage.js"></script>
+<script src="js/engine/gotra.js"></script>
+<script src="js/engine/sankalpam.js"></script>
+<script src="js/engine/abhivadaye.js"></script>
+<script src="js/engine/tarpana.js"></script>
+<script src="js/engine/procedure.js"></script>
+
+<script src="js/panchang/manual.js"></script>
+<script src="js/panchang/astro.js"></script>
+
+<script src="js/ui/form-profile.js"></script>
+<script src="js/ui/form-occasion.js"></script>
+<script src="js/ui/form-relatives.js"></script>
+<script src="js/ui/preview.js"></script>
+<script src="js/ui/recital.js"></script>
+<script src="js/ui/print.js"></script>
+
+<script src="js/app.js"></script>
+</body>
+</html>
