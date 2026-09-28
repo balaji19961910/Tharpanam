@@ -6,6 +6,9 @@ window.Thar = window.Thar || {};
 
   var OTHER = "__other";
   var GOTRA_OPTIONS = T.data.gotras.map(function (g) { return g.name; });
+  // Shown names can add the everyday spoken form, e.g. "Harita (Haritasa)"; the stored value stays g.name.
+  var GOTRA_LABELS = {};
+  T.data.gotras.forEach(function (g) { if (g.label) GOTRA_LABELS[g.name] = g.label; });
   var SUTRA_OPTIONS = [["apastamba", "Āpastamba"], ["bodhayana", "Bodhāyana"], ["ashvalayana", "Āśvalāyana"], ["drahyayana", "Drāhyāyaṇa"], ["katyayana", "Kātyāyana"]];
   var SHAKHA_OPTIONS = [["taittiriya", "Taittirīya"], ["shakala", "Śākala"], ["kauthuma", "Kauthuma"], ["jaiminiya", "Jaiminīya"], ["ranayaniya", "Rāṇāyanīya"]];
 
@@ -21,7 +24,7 @@ window.Thar = window.Thar || {};
     var isOther = forceOther || (!!selected && GOTRA_OPTIONS.indexOf(selected) === -1);
     return '<select ' + attr + '><option value="">—</option>' +
       GOTRA_OPTIONS.map(function (g) {
-        return '<option value="' + T.ui.esc(g) + '"' + (g === selected ? " selected" : "") + ">" + T.ui.esc(g) + "</option>";
+        return '<option value="' + T.ui.esc(g) + '"' + (g === selected ? " selected" : "") + ">" + T.ui.esc(GOTRA_LABELS[g] || g) + "</option>";
       }).join("") +
       '<option value="' + OTHER + '"' + (isOther ? " selected" : "") + ">" + T.ui.t("profile.gotra.other") + "</option></select>";
   }
@@ -56,9 +59,6 @@ window.Thar = window.Thar || {};
       '<label class="check"><input type="checkbox" data-field="alive"' + (p.alive ? " checked" : "") + "> " + T.ui.t("profile.person.alive") + "</label>" +
       '<label class="check"><input type="checkbox" data-field="unknownName"' + (p.unknownName ? " checked" : "") + (slot === "living" ? " disabled" : "") + "> " + T.ui.t("profile.person.unknown_name") + "</label>" +
       '<label class="check"><input type="checkbox" data-field="omit"' + (p.omit ? " checked" : "") + (slot === "living" ? " disabled" : "") + "> " + T.ui.t("profile.person.omit") + "</label>" +
-      (key === "mother" ? '<div class="field"><label>' + T.ui.t("profile.person.birth_gotra") + "</label>" + gotraSelectHtml('data-field="birthGotra"', p.birthGotra, p._gotraOther) +
-        ((p.birthGotra && GOTRA_OPTIONS.indexOf(p.birthGotra) === -1) || p._gotraOther ? '<input type="text" data-field="birthGotraText" placeholder="' +
-          T.ui.esc(T.ui.t("profile.gotra.other_placeholder")) + '" value="' + T.ui.esc(GOTRA_OPTIONS.indexOf(p.birthGotra) === -1 ? p.birthGotra || "" : "") + '">' : "") + "</div>" : "") +
       "</div>"
     );
   }
@@ -81,11 +81,25 @@ window.Thar = window.Thar || {};
     );
   }
 
+  // The mother's side is said with her birth gotra (her father's gotra): one field for the whole
+  // side, stored as people.mother.birthGotra. Also used for karunya relatives on her side.
+  function matamahaGotraField(profile) {
+    var m = (profile.people || {}).mother || {};
+    var g = m.birthGotra || "";
+    var isOther = m._gotraOther || (!!g && GOTRA_OPTIONS.indexOf(g) === -1);
+    return '<div class="field matamaha-gotra"><label>' + T.ui.t("profile.lineage.matamaha_gotra") + "</label>" +
+      gotraSelectHtml('data-mgotra="select"', g, m._gotraOther) +
+      (isOther ? '<input type="text" data-mgotra="text" placeholder="' + T.ui.esc(T.ui.t("profile.gotra.other_placeholder")) + '" value="' +
+        T.ui.esc(GOTRA_OPTIONS.indexOf(g) === -1 ? g : "") + '">' : "") +
+      '<p class="hint">' + T.ui.t(g ? "profile.lineage.matamaha_gotra_hint" : "profile.lineage.matamaha_gotra_empty") + "</p></div>";
+  }
+
   function vargaSection(profile, varga, lineage) {
     var titleKey = varga === "pitru" ? "profile.lineage.pitru_varga" : "profile.lineage.matamaha_varga";
     var data = lineage[varga];
     var skip = ((profile.settings || {}).skipJnatajnata || {})[varga];
     return "<h3>" + T.ui.t(titleKey) + "</h3>" +
+      (varga === "matamaha" ? matamahaGotraField(profile) : "") +
       (varga === "matamaha" ? '<div class="btn-row" style="margin-bottom:8px;">' +
         '<button type="button" class="btn secondary small" data-only="mgm">' + T.ui.t("profile.lineage.only_mgm") + "</button>" +
         '<button type="button" class="btn secondary small" data-only="">' + T.ui.t("profile.lineage.say_all") + "</button></div>" : "") +
@@ -256,13 +270,16 @@ window.Thar = window.Thar || {};
       '<p class="hint">' + T.ui.t("profile.varga_mode.hint." + vargaMode) + "</p></div>" +
       vargaSection(profile, "pitru", lineage) +
       (vargaMode === "both" ? vargaSection(profile, "matamaha", lineage) :
-        '<p class="hint collapsed-note">' + T.ui.t("profile.varga_mode.collapsed") + "</p>") +
+        '<div class="collapsed-note"><p class="hint" style="margin-top:0;">' + T.ui.t("profile.varga_mode.collapsed") + "</p>" + matamahaGotraField(profile) + "</div>") +
       "</div>" +
 
       '<div class="card"><h2>' + T.ui.t("profile.settings.title") + "</h2>" +
       '<label class="check"><input type="checkbox" data-check="includeBrahmaYajnam"' + (settings.includeBrahmaYajnam ? " checked" : "") + "> " +
       T.ui.t("profile.settings.brahmaYajnam") + "</label>" +
       '<div class="field-row">' +
+      '<div class="field"><label>' + T.ui.t("profile.settings.achamanam") + '</label><select data-s="achamanamStyle">' +
+      selectOptionsHtml([["keshava24", T.ui.t("profile.settings.achamanam.keshava24")], ["achyuta", T.ui.t("profile.settings.achamanam.achyuta")]],
+        T.engine.achamanamStyle(settings)) + "</select></div>" +
       '<div class="field"><label>' + T.ui.t("profile.settings.femaleOfferings") + '</label><select data-s="femaleOfferings">' +
       selectOptionsHtml([["1", "1"], ["3", "3"]], String(settings.femaleOfferings || 3)) + "</select></div>" +
       '<div class="field"><label>' + T.ui.t("profile.settings.unknownGotraMode") + '</label><select data-s="unknownGotraMode">' +
@@ -422,6 +439,16 @@ window.Thar = window.Thar || {};
     });
     on("#btn-reset-pravara", "click", function () {
       T.store.updateProfile(function (p) { p.kartha.pravaraOverride = null; });
+    });
+
+    on("[data-mgotra]", "change", function (el) {
+      T.store.updateProfile(function (p) {
+        p.people = p.people || {};
+        var m = p.people.mother = p.people.mother || { name: "", alive: false };
+        if (el.getAttribute("data-mgotra") === "text") { m.birthGotra = el.value.trim(); m._gotraOther = true; return; }
+        m._gotraOther = el.value === OTHER;
+        m.birthGotra = el.value === OTHER ? "" : el.value;
+      });
     });
 
     on("details.older-gens", "toggle", function (el) {

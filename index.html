@@ -45,12 +45,25 @@
   <aside id="live-preview" class="live-preview"></aside>
 
   <nav class="tab-bar" id="tab-bar" data-i18n-aria="nav.sections" aria-label="Sections">
-    <a href="#profile" data-i18n="tab.setup">Setup</a>
-    <a href="#script" data-i18n="tab.script">Script</a>
-    <a href="#recital" data-i18n="tab.recite">Recite</a>
-    <a href="#print" data-i18n="tab.more">More</a>
+    <a href="#profile"><span class="tab-ic" aria-hidden="true">👪</span><span data-i18n="tab.setup">Setup</span></a>
+    <a href="#occasion"><span class="tab-ic" aria-hidden="true">📅</span><span data-i18n="tab.day">Day</span></a>
+    <a href="#script"><span class="tab-ic" aria-hidden="true">📜</span><span data-i18n="tab.script">Script</span></a>
+    <a href="#recital"><span class="tab-ic" aria-hidden="true">🙏</span><span data-i18n="tab.recite">Recite</span></a>
+    <button type="button" id="tab-more" aria-haspopup="true" aria-expanded="false" aria-controls="more-sheet"><span class="tab-ic" aria-hidden="true">☰</span><span data-i18n="tab.more">More</span></button>
   </nav>
+  <div class="more-sheet hidden" id="more-sheet">
+    <div class="more-sheet-panel" role="menu">
+      <a href="#profile" data-i18n="nav.profile">Family profile</a>
+      <a href="#occasion" data-i18n="nav.occasion">Occasion &amp; date</a>
+      <a href="#karunya" data-i18n="nav.karunya">Karunya pitrus</a>
+      <a href="#script" data-i18n="nav.script">Generated script</a>
+      <a href="#recital" data-i18n="nav.recital">Recite</a>
+      <a href="#abhivadaye" data-i18n="nav.abhivadaye">Abhivadaye</a>
+      <a href="#print" data-i18n="nav.print">Print / export</a>
+    </div>
+  </div>
 </div>
+<div id="print-root" aria-hidden="true"></div>
 
 <script src="data/relations.js"></script>
 <script src="data/gotras.js"></script>

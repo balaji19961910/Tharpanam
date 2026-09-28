@@ -17,7 +17,7 @@ window.Thar = window.Thar || {};
     { name: "Parashara", pravara: ["Vāsiṣṭha", "Śāktya", "Pārāśarya"] },
     { name: "Kaushika", pravara: ["Vaiśvāmitra", "Āghamarṣaṇa", "Kauśika"] },
     { name: "Lohita", pravara: ["Vaiśvāmitra", "Āṣṭaka", "Lauhita"] },
-    { name: "Harita", pravara: ["Āṅgirasa", "Āmbarīṣa", "Yauvanāśva"] },
+    { name: "Harita", label: "Harita (Haritasa)", pravara: ["Āṅgirasa", "Āmbarīṣa", "Yauvanāśva"] },
     { name: "Atreya", pravara: ["Ātreya", "Ārcanānasa", "Śyāvāśva"] },
     { name: "Gautama", pravara: ["Āṅgirasa", "Āyāsya", "Gautama"] },
     { name: "Maudgalya", pravara: ["Āṅgirasa", "Bhārmyaśva", "Maudgalya"] },

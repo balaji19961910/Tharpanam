@@ -31,9 +31,20 @@ window.Thar = window.Thar || {};
   }
 
   function updateNavActive(section) {
-    document.querySelectorAll(".side-nav a, .tab-bar a").forEach(function (a) {
-      a.classList.toggle("active", a.getAttribute("href") === "#" + section);
+    var inBar = false;
+    document.querySelectorAll(".side-nav a, .tab-bar a, .more-sheet a").forEach(function (a) {
+      var on = a.getAttribute("href") === "#" + section;
+      a.classList.toggle("active", on);
+      if (on && a.parentNode.id === "tab-bar") inBar = true;
     });
+    // Sections without their own tab (karunya, abhivadaye, print) light up "More".
+    document.getElementById("tab-more").classList.toggle("active", !inBar);
+  }
+
+  // Phone "More" sheet: every section, so nothing is out of reach on a small screen.
+  function setMoreOpen(open) {
+    document.getElementById("more-sheet").classList.toggle("hidden", !open);
+    document.getElementById("tab-more").setAttribute("aria-expanded", String(open));
   }
 
   // Static shell text (nav, tab bar, labels) lives in index.html; re-translate it on every
@@ -63,10 +74,12 @@ window.Thar = window.Thar || {};
     document.getElementById("script-picker").value = ui.script || "iast";
   }
 
+  var lastSection = null;
   function render() {
     var section = currentSection();
     updateNavActive(section);
     if (section !== "recital") T.ui.recitalStop && T.ui.recitalStop();
+    if (section !== lastSection) { window.scrollTo(0, 0); lastSection = section; }
     var main = document.getElementById("main");
     var fn = RENDERERS[section];
     if (fn) fn(main, {});
@@ -85,6 +98,11 @@ window.Thar = window.Thar || {};
   }
 
   function wireTopbar() {
+    document.getElementById("tab-more").addEventListener("click", function () {
+      setMoreOpen(document.getElementById("more-sheet").classList.contains("hidden"));
+    });
+    document.getElementById("more-sheet").addEventListener("click", function () { setMoreOpen(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMoreOpen(false); });
     document.getElementById("occasion-chip").addEventListener("change", function (e) {
       T.store.setUI({ occasion: e.target.value });
     });

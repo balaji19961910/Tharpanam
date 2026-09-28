@@ -11,6 +11,15 @@ window.Thar = window.Thar || {};
       "trivikramāya namaḥ, vāmanāya namaḥ, śrīdharāya namaḥ",
       "hṛṣīkeśāya namaḥ, padmanābhāya namaḥ, dāmodarāya namaḥ"
     ],
+    // Caturviṃśati (24-name) Keśava achamanam — the family's version (2026-09-28 note).
+    achamanam_keshava24: [
+      "oṃ keśavāya svāhā, oṃ nārāyaṇāya svāhā, oṃ mādhavāya svāhā",
+      "oṃ govindāya namaḥ, oṃ viṣṇave namaḥ, oṃ madhusūdanāya namaḥ, oṃ trivikramāya namaḥ",
+      "oṃ vāmanāya namaḥ, oṃ śrīdharāya namaḥ, oṃ hṛṣīkeśāya namaḥ, oṃ padmanābhāya namaḥ",
+      "oṃ dāmodarāya namaḥ, oṃ saṅkarṣaṇāya namaḥ, oṃ vāsudevāya namaḥ, oṃ pradyumnāya namaḥ",
+      "oṃ aniruddhāya namaḥ, oṃ puruṣottamāya namaḥ, oṃ adhokṣajāya namaḥ, oṃ narasiṃhāya namaḥ",
+      "oṃ acyutāya namaḥ, oṃ janārdanāya namaḥ, oṃ upendrāya namaḥ, oṃ haraye namaḥ, oṃ śrī kṛṣṇāya namaḥ"
+    ],
     ganapati_dhyanam: [
       "śuklāmbaradharaṃ viṣṇuṃ śaśivarṇaṃ catur-bhujam",
       "prasanna-vadanaṃ dhyāyet sarva-vighnopa-śāntaye"

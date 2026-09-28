@@ -130,18 +130,23 @@ window.Thar = window.Thar || {};
   // ---- Tamil (superscript-numeral convention: kha=க², ga=க³, gha=க⁴, etc.) ----
   var TA_CONS = {
     k: "க", kh: "க²", g: "க³", gh: "க⁴", "ṅ": "ங",
-    c: "ச", ch: "ச²", j: "ச³", jh: "ச⁴", "ñ": "ஞ",
+    c: "ச", ch: "ச²", j: "ஜ", jh: "ஜ⁴", "ñ": "ஞ",
     "ṭ": "ட", "ṭh": "ட²", "ḍ": "ட³", "ḍh": "ட⁴", "ṇ": "ண",
     t: "த", th: "த²", d: "த³", dh: "த⁴", n: "ந",
     p: "ப", ph: "ப²", b: "ப³", bh: "ப⁴", m: "ம",
     y: "ய", r: "ர", l: "ல", v: "வ",
     "ś": "ஶ", "ṣ": "ஷ", s: "ஸ", h: "ஹ"
   };
+  // Sanskrit e/o are always long, so they take the long Tamil signs (ே ோ / ஏ ஓ).
   var TA_MATRA = { a: "", "ā": "ா", i: "ி", "ī": "ீ", u: "ு", "ū": "ூ",
-    "ṛ": "ரு", "ṝ": "ரூ", "ḷ": "லு", "ḹ": "லூ", e: "ெ", ai: "ை", o: "ொ", au: "ௌ" };
+    e: "ே", ai: "ை", o: "ோ", au: "ௌ" };
   var TA_INDEP = { a: "அ", "ā": "ஆ", i: "இ", "ī": "ஈ", u: "உ", "ū": "ஊ",
-    "ṛ": "ரு", "ṝ": "ரூ", "ḷ": "லு", "ḹ": "லூ", e: "எ", ai: "ஐ", o: "ஒ", au: "ஔ" };
-  var TA_VIRAMA = "்", TA_ANUSVARA = "ஂ", TA_VISARGA = "ஃ", TA_AVAGRAHA = "'";
+    "ṛ": "ரு", "ṝ": "ரூ", "ḷ": "லு", "ḹ": "லூ", e: "ஏ", ai: "ஐ", o: "ஓ", au: "ஔ" };
+  // Vocalic ṛ after a consonant is written as a conjunct: kṛ -> க்ரு, gṛ -> க்³ரு.
+  var TA_VOCALIC = { "ṛ": "்ரு", "ṝ": "்ரூ", "ḷ": "்லு", "ḹ": "்லூ" };
+  // Visarga as ":" (நம:) and ṃ as ம், as Tamil sloka books print them; the Tamil anusvara sign ஂ is missing from most fonts and shows as a box.
+  var TA_VIRAMA = "்", TA_ANUSVARA = "ம்", TA_VISARGA = ":", TA_AVAGRAHA = "'";
+  var TA_SUP = /[²³⁴]$/;
 
   T.translit.iastToTamil = function (text) {
     if (!text) return text;
@@ -154,10 +159,14 @@ window.Thar = window.Thar || {};
       else if (tk.kind === "other") out += tk.ch;
       else if (tk.kind === "aksara") {
         if (tk.cons) {
+          // The superscript numeral goes after the vowel sign / virama (பா⁴, த்³), never between
+          // the letter and its sign, or the sign has nothing to attach to.
           var base = TA_CONS[tk.cons] || tk.cons;
-          if (tk.vowel === "a") out += base;
-          else if (tk.vowel) out += base + (TA_MATRA[tk.vowel] || "");
-          else out += base + TA_VIRAMA;
+          var sup = (base.match(TA_SUP) || [""])[0];
+          var letter = sup ? base.slice(0, -1) : base;
+          var sign = tk.vowel === "a" ? "" : !tk.vowel ? TA_VIRAMA : TA_VOCALIC[tk.vowel] ? null : (TA_MATRA[tk.vowel] || "");
+          if (sign === null) out += letter + "்" + sup + TA_VOCALIC[tk.vowel].slice(1);
+          else out += letter + sign + sup;
         } else if (tk.vowel) {
           out += TA_INDEP[tk.vowel] || tk.vowel;
         }

@@ -368,6 +368,21 @@ var samplePanchang = {
   ok("purpose: day count", dc.indexOf("adya dina (prathama dina) prayukta pakṣīya mahālaya pakṣa śrāddhaṃ") !== -1);
 })();
 
+// ---- Achamanam style ----
+(function () {
+  var profile = JSON.parse(JSON.stringify(T.data.sampleProfile));
+  function acha(res) { return res.steps.filter(function (x) { return x.id === "achamanam_1"; })[0]; }
+  var a = acha(T.engine.buildProcedure(profile, "amavasya", samplePanchang, {}));
+  ok("default achamanam is the 24-name Keśava one", /keśavāya svāhā/.test(a.content.lines[0]) && /śrī kṛṣṇāya/.test(a.content.lines[5]));
+  eq("24-name how-to key", a.doKey, "step.achamanam_1.do24");
+  var names = a.content.lines.join(", ").split(", ").length;
+  eq("24 names", names, 24);
+  profile.settings.achamanamStyle = "achyuta";
+  a = acha(T.engine.buildProcedure(profile, "amavasya", samplePanchang, {}));
+  ok("achyuta style keeps Acyuta sips", /acyutāya namaḥ, oṃ anantāya/.test(a.content.lines[0]));
+  eq("achyuta how-to key", a.doKey, "step.achamanam_1.do");
+})();
+
 // ---- Brahma yajnam, hiraṇya, omitting people, pets, custom steps ----
 (function () {
   function ids(res) { return res.steps.filter(function (x) { return x.type === "step"; }).map(function (x) { return x.id; }); }
@@ -434,10 +449,15 @@ var samplePanchang = {
 (function () {
   eq("translit: devanagari namaḥ", T.translit.iastToDevanagari("namaḥ"), "नमः");
   eq("translit: devanagari conjunct śarmaṇaḥ", T.translit.iastToDevanagari("śarmaṇaḥ"), "शर्मणः");
-  eq("translit: tamil namaḥ (visarga -> ஃ)", T.translit.iastToTamil("namaḥ"), "நமஃ");
+  eq("translit: tamil namaḥ (visarga -> :)", T.translit.iastToTamil("namaḥ"), "நம:");
+  eq("translit: tamil j as ஜ", T.translit.iastToTamil("ājñayā janārdana"), "ஆஜ்ஞயா ஜநார்த³ந");
   eq("translit: tamil superscript kha", T.translit.iastToTamil("kha"), "க²");
   eq("translit: tamil superscript ga", T.translit.iastToTamil("ga"), "க³");
   eq("translit: tamil superscript gha", T.translit.iastToTamil("gha"), "க⁴");
+  eq("translit: tamil superscript after vowel sign", T.translit.iastToTamil("bhādrapada"), "பா⁴த்³ரபத³");
+  eq("translit: tamil long e/o", T.translit.iastToTamil("devo govinda"), "தே³வோ கோ³விந்த³");
+  eq("translit: tamil vocalic ṛ", T.translit.iastToTamil("kṛṣṇa gṛha"), "க்ருஷ்ண க்³ருஹ");
+  eq("translit: tamil anusvara as ம்", T.translit.iastToTamil("rāmaṃ"), "ராமம்");
   eq("translit: simple english śarmaṇaḥ", T.translit.iastToSimple("śarmaṇaḥ"), "sharmanah");
   eq("translit: simple english long vowels", T.translit.iastToSimple("rāmasvāmī"), "raamasvaamee");
   eq("translit: iast passthrough", T.translit.toScript("pitṝn", "iast"), "pitṝn");

@@ -7,7 +7,7 @@ window.Thar = window.Thar || {};
     { key: "tamilSheet", labelKey: "preset.tamilSheet", settings: {
       sankalpaStyle: "gotraFirstUnnamed", matamahaSapatnika: true, feminineSuffix: "dā", masculineSuffix: "śarma",
       masaSystem: "solar", yogaKaranaStyle: "actual", changeStyle: "atTime", tarpanaStyle: "booklet",
-      karunyaStyle: "singular", mahalayaPurpose: "hiranya" } },
+      karunyaStyle: "singular", mahalayaPurpose: "hiranya", achamanamStyle: "achyuta" } },
     { key: "devanagariBooklet", labelKey: "preset.devanagariBooklet", settings: {
       sankalpaStyle: "gotraFirst", matamahaSapatnika: true, feminineSuffix: "dā", masculineSuffix: "śarma",
       masaSystem: "solar", yogaKaranaStyle: "actual", changeStyle: "atTime", tarpanaStyle: "booklet",
@@ -15,7 +15,7 @@ window.Thar = window.Thar || {};
     { key: "teluguIyer", labelKey: "preset.teluguIyer", settings: {
       sankalpaStyle: "relationFirst", matamahaSapatnika: true, feminineSuffix: "ammadā", masculineSuffix: "śarma",
       masaSystem: "lunar", yogaKaranaStyle: "vishnu", changeStyle: "atTime", tarpanaStyle: "asmat",
-      karunyaStyle: "singular", mahalayaPurpose: "madhye" } },
+      karunyaStyle: "singular", mahalayaPurpose: "madhye", achamanamStyle: "keshava24" } },
     { key: "dailySheet", labelKey: "preset.dailySheet", settings: {
       sankalpaStyle: "gotraFirst", matamahaSapatnika: true, feminineSuffix: "dā", masculineSuffix: "śarma",
       masaSystem: "both", yogaKaranaStyle: "vishnuActual", changeStyle: "tadupari", tarpanaStyle: "booklet",

@@ -107,12 +107,20 @@ window.Thar = window.Thar || {};
   }
   T.engine.composeSteps = composeSteps;
 
+  // settings.achamanamStyle: "keshava24" (default; Keśava, Nārāyaṇa, Mādhava sips + 21 touches)
+  //   or "achyuta" (Acyuta, Ananta, Govinda sips + 12 Keśava touches, Tamil smārta sheets).
+  function achamanamStyle(settings) { return (settings && settings.achamanamStyle) === "achyuta" ? "achyuta" : "keshava24"; }
+  function achamanamMantra(id, settings) {
+    return id === "achamanam" && achamanamStyle(settings) === "keshava24" ? "achamanam_keshava24" : id;
+  }
+  T.engine.achamanamStyle = achamanamStyle;
+
   // Resolve one step's content object into renderable data.
   function resolveContent(step, ctx) {
     var c = step.content;
     var mantras = T.data.mantras || {};
     if (c.type === "mantra") {
-      return { type: "mantra", lines: mantras[c.mantraId] || [] };
+      return { type: "mantra", lines: mantras[achamanamMantra(c.mantraId, ctx.settings)] || [] };
     }
     if (c.type === "custom") {
       return { type: "mantra", lines: c.lines.slice() };
@@ -224,7 +232,7 @@ window.Thar = window.Thar || {};
       return {
         id: s.id, titleKey: s.titleKey, instructionKey: s.instructionKey, title: s.title || null,
         custom: !!s.custom, extraLines: extra.slice(),
-        doKey: "step." + s.id + ".do",
+        doKey: "step." + s.id + ".do" + (s.content && s.content.mantraId === "achamanam" && achamanamStyle(settings) === "keshava24" ? "24" : ""),
         facing: s.facing || null, theertham: s.theertham || null,
         pavitram: pos >= pavOn && pos < pavOff,
         poonal: s.poonal, koorcham: varga ? koorchamNo(varga) : null, optional: !!s.optional,

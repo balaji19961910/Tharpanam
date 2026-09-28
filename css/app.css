@@ -243,7 +243,10 @@ h1, h2, h3 { line-height: 1.25; }
   display: flex; flex-direction: column; padding: 20px;
 }
 .recital-poonal { align-self: center; font-size: 20px; padding: 10px 20px; border-radius: 999px; margin-bottom: 14px; }
-.recital-body { flex: 1; overflow-y: auto; font-size: 28px; line-height: 1.8; font-family: var(--font-mantra); display: flex; flex-direction: column; justify-content: center; }
+.recital-body { flex: 1; overflow-y: auto; font-size: 28px; line-height: 1.8; font-family: var(--font-mantra); display: flex; flex-direction: column; }
+/* Centre short steps without clipping the top of long ones (justify-content:center would). */
+.recital-body > :first-child { margin-top: auto; }
+.recital-body > :last-child { margin-bottom: auto; }
 .recital-title { font-size: 22px; font-weight: 700; font-family: var(--font-body); margin-bottom: 10px; text-align: center; }
 .recital-instruction { font-size: 18px; font-family: var(--font-body); color: var(--color-text-muted); text-align: center; margin-bottom: 16px; }
 .recital-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; }
@@ -255,28 +258,57 @@ h1, h2, h3 { line-height: 1.25; }
   .live-preview { display: none; }
 }
 @media (max-width: 760px) {
-  #app { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; padding-bottom: 64px; }
+  #app { grid-template-columns: minmax(0, 1fr); grid-template-areas: "topbar" "main"; padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
   .side-nav { display: none; }
+  /* The top bar scrolls away on phones so the form gets the whole screen. */
+  .topbar { position: static; padding: 8px 12px; }
+  .topbar-brand { font-size: 17px; }
+  .topbar-controls { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; width: 100%; }
+  .topbar-controls #occasion-chip, .topbar-controls #date-chip { grid-column: 1 / -1; width: 100%; }
+  .topbar-controls .chip-select { min-width: 0; font-size: 15px; padding: 8px 10px; }
+  .main-area { padding: 12px; }
+  .card { padding: 12px; }
+  .card h2 { font-size: 21px; }
+  .step-card { padding: 12px; }
+  .mantra-block { font-size: 18px; }
+  .mantra-line { flex-wrap: wrap; }
+  .tap-counter { min-width: 64px; padding: 8px 12px; margin-left: auto; }
+  .seg-btn { padding: 8px 12px; }
+  .btn { padding: 10px 14px; }
+  .field input[type="text"], .field select, .field textarea, .field input[type="datetime-local"] { font-size: 16px; padding: 10px; }
+  .lineage-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .person-card { padding: 8px; }
+  .person-card .check { font-size: 13px; }
+  .panchang-summary { grid-template-columns: 1fr 1fr; }
+  .panchang-summary .v { font-size: 17px; }
+  .planner { font-size: 14px; }
   .tab-bar {
     display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
     background: var(--color-surface); border-top: 1px solid var(--color-border);
+    padding-bottom: env(safe-area-inset-bottom);
   }
-  .tab-bar a { flex: 1; text-align: center; padding: 12px 4px; text-decoration: none; color: var(--color-text); font-size: 13px; }
-  .tab-bar a.active { color: var(--color-accent-strong); font-weight: 700; }
-  .recital-body { font-size: 24px; }
+  .tab-bar a, .tab-bar button {
+    flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 1px;
+    padding: 7px 2px 8px; text-decoration: none; color: var(--color-text); font-size: 12px; line-height: 1.2;
+    background: none; border: 0; cursor: pointer; font-family: inherit;
+  }
+  .tab-bar a > span:last-child, .tab-bar button > span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tab-ic { font-size: 19px; line-height: 1.1; }
+  .tab-bar .active { color: var(--color-accent-strong); font-weight: 700; }
+  .more-sheet { position: fixed; inset: 0; z-index: 29; background: rgba(0, 0, 0, 0.35); display: flex; align-items: flex-end; }
+  .more-sheet-panel {
+    width: 100%; background: var(--color-surface); border-radius: 16px 16px 0 0; padding: 8px 8px calc(72px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.18);
+  }
+  .more-sheet-panel a { display: block; padding: 13px 14px; border-radius: 10px; color: var(--color-text); text-decoration: none; font-size: 17px; }
+  .more-sheet-panel a.active { background: var(--color-accent-bg); color: var(--color-accent-strong); font-weight: 700; }
+  .recital-overlay { padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
+  .recital-body { font-size: 23px; }
+  .recital-title { font-size: 19px; }
+  .recital-nav .btn { flex: 1; justify-content: center; }
 }
-
-/* ---- Print (A5 booklet) ---- */
-@media print {
-  .topbar, .side-nav, .tab-bar, .live-preview, .no-print { display: none !important; }
-  #app { display: block; }
-  .main-area { padding: 0; }
-  body { font-size: 13px; background: #fff; color: #000; }
-  .step-card { break-inside: avoid; border: none; border-bottom: 1px solid #ccc; box-shadow: none; }
-  .poonal-badge { border: 1px solid #000 !important; background: #fff !important; color: #000 !important; }
-  .poonal-change-banner { border: 2px solid #000 !important; background: #fff !important; color: #000 !important; }
-  @page { size: A5; margin: 14mm; }
-}
+@media (max-width: 380px) { .lineage-grid { grid-template-columns: 1fr; } }
+@media (min-width: 761px) { .more-sheet { display: none !important; } }
 
 /* Step how-to: chips, numbered physical instructions, "Say" label */
 .step-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
@@ -299,10 +331,6 @@ h1, h2, h3 { line-height: 1.25; }
 .chip-badge.manual { background: var(--color-warn-bg); color: var(--color-warn); }
 .field input[type="datetime-local"] { width: 100%; padding: 9px 10px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-bg-alt); color: var(--color-text); }
 
-@media print {
-  .do-block { border-left: 2px solid #999; }
-  .do-block:not([open]) > .do-list { display: block; }
-}
 .style-preview { font-family: var(--font-mantra); font-size: 17px; margin: 4px 0 0; padding-left: 22px; }
 .field textarea { font-family: var(--font-mantra); font-size: 16px; }
 code { font-size: 13px; background: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: 4px; padding: 0 4px; overflow-wrap: anywhere; }
@@ -320,3 +348,105 @@ code { font-size: 13px; background: var(--color-bg-alt); border: 1px solid var(-
 .extra-lines .mantra-line { display: flex; gap: 6px; align-items: flex-start; }
 .extra-lines .mantra-text { flex: 1; min-height: 1.6em; }
 .extra-lines .mantra-text:empty::before { content: "…"; color: var(--color-text-muted); }
+
+/* ---- Print booklet (js/ui/print.js) ----
+   On screen the booklet is shown as a sheet of paper so the preview matches the printout. */
+#print-root { display: none; }
+.print-stage { overflow-x: auto; padding: 4px 0 24px; }
+.print-checks { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-bottom: 8px; }
+.print-sheet {
+  --p-ink: #1d1a16; --p-muted: #5d5548; --p-rule: #cfc6b5; --p-base: 15px;
+  background: #fff; color: var(--p-ink); margin: 0 auto; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  font-family: var(--font-body); font-size: var(--p-base); line-height: 1.5;
+}
+.print-sheet.paper-a5 { width: 148mm; padding: 10mm 10mm; }
+.print-sheet.paper-a4 { width: 210mm; padding: 12mm 13mm; }
+.print-sheet.size-s { --p-base: 13px; }
+.print-sheet.size-l { --p-base: 18px; }
+.p-header { text-align: center; border-bottom: 2px solid var(--p-ink); padding-bottom: 0.8em; margin-bottom: 1em; }
+.p-om { font-size: 2em; line-height: 1; color: #b45309; }
+.p-occasion { font-size: 1.55em; margin: 0.15em 0 0.1em; }
+.p-date { margin: 0; color: var(--p-muted); }
+.p-panchang { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3em 0.8em; margin: 0.7em 0 0.5em; text-align: left; }
+.p-panchang div { border-left: 3px solid #d97706; padding-left: 0.5em; }
+.p-panchang dt { font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--p-muted); }
+.p-panchang dd { margin: 0; font-family: var(--font-mantra); font-weight: 600; }
+.p-kartha { margin: 0.4em 0; }
+.p-legend { margin: 0.5em 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4em; }
+.p-poonal { display: inline-block; font-size: 0.74em; font-weight: 700; padding: 0.1em 0.6em; border-radius: 999px; border: 1.5px solid; white-space: nowrap; }
+.p-poonal.upaveeti { color: #15803d; background: #dcfce7; }
+.p-poonal.pracheenaveeti { color: #c2410c; background: #ffedd5; }
+.p-poonal.niveeti { color: #1d4ed8; background: #dbeafe; }
+.p-pass { font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.08em; text-align: center; border-top: 1px solid var(--p-ink); border-bottom: 1px solid var(--p-ink); padding: 0.3em 0; margin: 1.2em 0 0.8em; }
+.p-step { padding: 0.55em 0 0.7em; border-bottom: 1px solid var(--p-rule); }
+.p-step-head { display: flex; align-items: baseline; gap: 0.5em; flex-wrap: wrap; break-after: avoid; }
+.p-num { flex: none; font-weight: 700; min-width: 1.6em; height: 1.6em; line-height: 1.6em; text-align: center; border-radius: 50%; background: #f2ead9; font-size: 0.85em; }
+.p-title { font-size: 1.08em; margin: 0; flex: 1 1 auto; }
+.p-notes { margin: 0.2em 0 0; font-size: 0.82em; color: var(--p-muted); font-style: italic; }
+.p-instr { margin: 0.25em 0 0; font-size: 0.9em; color: var(--p-muted); }
+.p-howto { margin: 0.3em 0 0; padding-left: 1.5em; font-size: 0.86em; color: #3b352c; }
+.p-howto li { margin: 0.05em 0; }
+.p-materials { columns: 2; margin: 0.3em 0 0; padding-left: 1.3em; font-size: 0.92em; }
+.p-lines { margin-top: 0.4em; }
+.p-text { font-family: var(--font-mantra); font-size: 1.14em; line-height: 1.65; margin: 0.15em 0; white-space: pre-wrap; }
+.p-tarpana { padding-left: 1.6em; margin: 0.4em 0 0; }
+.p-tarpana li { display: flex; align-items: baseline; gap: 0.6em; break-inside: avoid; border-bottom: 1px dotted var(--p-rule); padding: 0.1em 0; }
+.p-tarpana li::marker { font-size: 0.8em; color: var(--p-muted); }
+.p-tarpana .p-text { flex: 1; margin: 0; }
+.p-count { flex: none; font-size: 0.78em; color: var(--p-muted); white-space: nowrap; display: inline-flex; align-items: center; gap: 0.2em; }
+.p-box { display: inline-block; width: 0.85em; height: 0.85em; border: 1.2px solid var(--p-ink); border-radius: 2px; }
+.p-change { margin: 0.7em 0; padding: 0.45em 0.8em; font-weight: 800; text-align: center; border: 2px solid; border-radius: 8px; break-after: avoid; }
+.p-change.upaveeti { color: #15803d; background: #f0fdf4; }
+.p-change.pracheenaveeti { color: #c2410c; background: #fff7ed; }
+.p-change.niveeti { color: #1d4ed8; background: #eff6ff; }
+.p-abhivadaye { text-align: center; border: 1.5px solid var(--p-ink); border-radius: 8px; padding: 0.8em; margin-top: 1em; }
+.p-blocked { font-weight: 700; color: #b91c1c; }
+.p-footer { margin-top: 1.2em; text-align: center; font-size: 0.75em; color: var(--p-muted); }
+/* Compact (default): tight, sheet-like spacing, like a vadhyar's printed sheet. */
+.print-sheet.compact { line-height: 1.35; }
+.print-sheet.compact.size-m { --p-base: 13.5px; }
+.print-sheet.compact.size-s { --p-base: 12px; }
+.print-sheet.compact.size-l { --p-base: 16px; }
+.compact .p-header { padding-bottom: 0.4em; margin-bottom: 0.4em; border-bottom-width: 1.5px; }
+.compact .p-om { font-size: 1.5em; }
+.compact .p-occasion { font-size: 1.3em; margin: 0; }
+.compact .p-date { font-size: 0.9em; }
+.compact .p-panchang { grid-template-columns: repeat(6, 1fr); margin: 0.35em 0 0.25em; gap: 0.15em 0.6em; }
+.compact.paper-a5 .p-panchang { grid-template-columns: repeat(3, 1fr); }
+.compact .p-panchang dt { font-size: 0.66em; }
+.compact .p-kartha { margin: 0.2em 0; font-size: 0.92em; }
+.compact .p-legend { margin-top: 0.2em; gap: 0.3em; }
+.compact .p-poonal { font-size: 0.68em; padding: 0 0.5em; border-width: 1px; }
+.compact .p-pass { margin: 0.6em 0 0.3em; padding: 0.15em 0; font-size: 0.85em; }
+.compact .p-step { padding: 0.3em 0 0.35em; border-bottom-color: #e5dfd3; }
+.compact .p-num { min-width: 1.45em; height: 1.45em; line-height: 1.45em; font-size: 0.78em; }
+.compact .p-title { font-size: 1em; }
+.compact .p-notes, .compact .p-instr { margin: 0; font-size: 0.78em; }
+.compact .p-howto { margin: 0.1em 0 0; padding: 0; font-size: 0.78em; line-height: 1.35; color: #4a443a; }
+.compact .p-howto b { color: #b45309; }
+.compact .p-materials { margin: 0.1em 0 0; font-size: 0.84em; columns: 3; }
+.compact .p-lines { margin-top: 0.2em; }
+.compact .p-text { font-size: 1.06em; line-height: 1.4; margin: 0; }
+.compact .p-tarpana { margin-top: 0.15em; padding-left: 1.4em; }
+.compact .p-tarpana li { padding: 0.02em 0; }
+.compact .p-change { margin: 0.35em 0; padding: 0.15em 0.6em; font-size: 0.85em; border-width: 1.5px; border-radius: 6px; }
+.compact .p-abhivadaye { padding: 0.4em; margin-top: 0.6em; }
+.compact .p-footer { margin-top: 0.6em; }
+
+@media (max-width: 760px) {
+  /* Fit the paper preview to a phone screen instead of forcing a sideways scroll. */
+  .print-sheet.paper-a5, .print-sheet.paper-a4 { width: 100%; padding: 16px 14px; }
+}
+
+@media print {
+  body { background: #fff !important; color: #000; }
+  #app { display: none !important; }
+  #print-root { display: block; }
+  .print-sheet { box-shadow: none; width: auto !important; padding: 0 !important; margin: 0; }
+  /* Long steps may run across pages; keep each heading with its first lines and never split a line. */
+  .p-change, .p-abhivadaye, .p-header, .p-panchang { break-inside: avoid; }
+  .p-step-head, .p-notes, .p-instr, .p-pass { break-after: avoid; }
+  .p-text, .p-tarpana li, .p-howto li { break-inside: avoid; }
+  .p-step { orphans: 3; widows: 3; }
+  .p-poonal, .p-change, .p-om, .p-num, .p-panchang div { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
